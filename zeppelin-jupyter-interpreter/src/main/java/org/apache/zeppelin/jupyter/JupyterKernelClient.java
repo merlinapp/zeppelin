@@ -73,7 +73,7 @@ public class JupyterKernelClient {
    */
   public JupyterKernelClient(String host,
                              int port) {
-    this(ManagedChannelBuilder.forAddress(host, port).usePlaintext(true), new Properties());
+    this(ManagedChannelBuilder.forAddress(host, port).usePlaintext(), new Properties());
   }
 
   /**

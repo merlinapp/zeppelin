@@ -16,7 +16,7 @@
 FROM ubuntu:16.04
 MAINTAINER Apache Software Foundation <dev@zeppelin.apache.org>
 
-ENV Z_VERSION="0.9.0-preview1"
+ENV Z_VERSION="0.9.0-SNAPSHOT"
 
 ENV LOG_TAG="[ZEPPELIN_${Z_VERSION}]:" \
     Z_HOME="/zeppelin" \
@@ -75,7 +75,7 @@ RUN echo "$LOG_TAG Install python related packages" && \
     conda info -a && \
     conda config --add channels conda-forge && \
     pip install -q pycodestyle==2.5.0 && \
-    pip install -q numpy==1.17.3 pandas==0.25.0 scipy==1.3.1 grpcio==1.19.0 bkzep==0.6.1 hvplot==0.5.2 protobuf==3.10.0 pandasql==0.7.3 ipython==7.8.0 matplotlib==3.0.3 ipykernel==5.1.2 jupyter_client==5.3.4 bokeh==1.3.4 panel==0.6.0 holoviews==1.12.3 seaborn==0.9.0 plotnine==0.5.1 intake==0.5.3 intake-parquet==0.2.2 altair==3.2.0 pycodestyle==2.5.0 apache_beam==2.15.0
+    pip install -q numpy==1.17.3 pandas==0.25.0 scipy==1.3.1 grpcio==1.19.0 bkzep==0.6.1 hvplot==0.5.2 protobuf==3.10.0 pandasql==0.7.3 ipython==7.8.0 matplotlib==3.0.3 ipykernel==5.1.2 jupyter_client==5.3.4 bokeh==1.3.4 panel==0.6.0 holoviews==1.12.3 seaborn==0.9.0 plotnine==0.5.1 intake==0.5.3 intake-parquet==0.2.2 altair==3.2.0 pycodestyle==2.5.0 apache_beam==2.15.0 koalas==0.30.0
 
 RUN echo "$LOG_TAG Install R related packages" && \
     echo "PATH: $PATH" && \
@@ -109,12 +109,11 @@ RUN echo "$LOG_TAG Cleanup" && \
     apt-get autoclean && \
     apt-get clean
 
+ADD zeppelin-${Z_VERSION}.tar.gz /
+
 RUN echo "$LOG_TAG Download Zeppelin binary" && \
-    wget --quiet -O /tmp/zeppelin-${Z_VERSION}-bin-all.tgz http://archive.apache.org/dist/zeppelin/zeppelin-${Z_VERSION}/zeppelin-${Z_VERSION}-bin-all.tgz && \
-    tar -zxvf /tmp/zeppelin-${Z_VERSION}-bin-all.tgz && \
-    rm -rf /tmp/zeppelin-${Z_VERSION}-bin-all.tgz && \
     mkdir -p ${Z_HOME} && \
-    mv /zeppelin-${Z_VERSION}-bin-all/* ${Z_HOME}/ && \
+    mv /zeppelin-${Z_VERSION}/* ${Z_HOME}/ && \
     chown -R root:root ${Z_HOME} && \
     mkdir -p ${Z_HOME}/logs ${Z_HOME}/run ${Z_HOME}/webapps && \
     # Allow process to edit /etc/passwd, to create a user entry for zeppelin
@@ -122,11 +121,21 @@ RUN echo "$LOG_TAG Download Zeppelin binary" && \
     # Give access to some specific folders
     chmod -R 775 "${Z_HOME}/logs" "${Z_HOME}/run" "${Z_HOME}/notebook" "${Z_HOME}/conf" && \
     # Allow process to create new folders (e.g. webapps)
-    chmod 775 ${Z_HOME}
+    chmod 775 ${Z_HOME} && rm -rf /zeppelin-${Z_VERSION} 
 
 COPY log4j.properties ${Z_HOME}/conf/
 
-USER 1000
+ARG USER=zeppelin
+ARG GROUP=$USER
+ARG UID=1000
+ARG GID=1000
+RUN groupadd -g $GID $GROUP && \
+    useradd --no-log-init -u $UID -g $GID $USER && \
+    chown -R zeppelin:zeppelin /zeppelin && \
+    mkdir -p /home/zeppelin && \
+    chown -R zeppelin:zeppelin /home/zeppelin
+
+USER zeppelin
 
 EXPOSE 8080
 

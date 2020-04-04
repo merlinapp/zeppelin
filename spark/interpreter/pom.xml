@@ -515,6 +515,10 @@
               <shadedPattern>org.apache.zeppelin.io.netty</shadedPattern>
             </relocation>
             <relocation>
+              <pattern>io.grpc</pattern>
+              <shadedPattern>org.apache.zeppelin.io.grpc</shadedPattern>
+            </relocation>
+            <relocation>
               <pattern>com.google</pattern>
               <shadedPattern>org.apache.zeppelin.com.google</shadedPattern>
             </relocation>
