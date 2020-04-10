@@ -82,6 +82,21 @@
     </fileSet>
     <fileSet>
       <directory>../interpreter</directory>
+      <excludes>
+        <exclude>alluxio/**</exclude>
+        <exclude>beam/**</exclude>
+        <exclude>cassandra/**</exclude>
+        <exclude>elasticsearch/**</exclude>
+        <exclude>geode/**</exclude>
+        <exclude>hazelcastjet/**</exclude>
+        <exclude>hbase/**</exclude>
+        <exclude>ignite/**</exclude>
+        <exclude>kylin/**</exclude>
+        <exclude>lens/**</exclude>
+        <exclude>livy/**</exclude>
+        <exclude>mongodb/**</exclude>
+        <exclude>submarine/**</exclude>
+      </excludes>
     </fileSet>
     <fileSet>
       <directory>../notebook</directory>

@@ -31,14 +31,13 @@ RUN echo "$LOG_TAG update and install basic packages" && \
     apt-get install -y --no-install-recommends software-properties-common && \
     apt -y autoclean && \
     apt -y dist-upgrade && \
-    apt-get install -y --no-install-recommends build-essential
-
-RUN echo "$LOG_TAG install tini related packages" && \
+    apt-get install -y --no-install-recommends build-essential && \
+    echo "$LOG_TAG install tini related packages" && \
     apt-get install -y --no-install-recommends wget curl grep sed dpkg && \
     TINI_VERSION=`curl https://github.com/krallin/tini/releases/latest | grep -o "/v.*\"" | sed 's:^..\(.*\).$:\1:'` && \
     curl -L "https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini_${TINI_VERSION}.deb" > tini.deb && \
     dpkg -i tini.deb && \
-    rm tini.deb
+    rm tini.deb && rm -rf /var/lib/apt/lists/*
 
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 RUN echo "$LOG_TAG Install java8" && \
@@ -55,7 +54,7 @@ RUN echo "$LOG_TAG Install miniconda3 related packages" && \
     echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh && \
     wget --quiet https://repo.continuum.io/miniconda/Miniconda3-4.6.14-Linux-x86_64.sh -O ~/miniconda.sh && \
     /bin/bash ~/miniconda.sh -b -p /opt/conda && \
-    rm ~/miniconda.sh
+    rm ~/miniconda.sh && rm -rf /var/lib/apt/lists/*
 
 ENV PATH /opt/conda/bin:$PATH
 
@@ -75,7 +74,8 @@ RUN echo "$LOG_TAG Install python related packages" && \
     conda info -a && \
     conda config --add channels conda-forge && \
     pip install -q pycodestyle==2.5.0 && \
-    pip install -q numpy==1.17.3 pandas==0.25.0 scipy==1.3.1 grpcio==1.19.0 bkzep==0.6.1 hvplot==0.5.2 protobuf==3.10.0 pandasql==0.7.3 ipython==7.8.0 matplotlib==3.0.3 ipykernel==5.1.2 jupyter_client==5.3.4 bokeh==1.3.4 panel==0.6.0 holoviews==1.12.3 seaborn==0.9.0 plotnine==0.5.1 intake==0.5.3 intake-parquet==0.2.2 altair==3.2.0 pycodestyle==2.5.0 apache_beam==2.15.0 koalas==0.30.0 pyarrow==0.14.1 py4j==0.10.7 pyspark==2.4.5
+    pip install -q numpy==1.17.3 pandas==0.25.0 scipy==1.3.1 grpcio==1.19.0 bkzep==0.6.1 hvplot==0.5.2 protobuf==3.10.0 pandasql==0.7.3 ipython==7.8.0 matplotlib==3.0.3 ipykernel==5.1.2 jupyter_client==5.3.4 bokeh==1.3.4 panel==0.6.0 holoviews==1.12.3 seaborn==0.9.0 plotnine==0.5.1 intake==0.5.3 intake-parquet==0.2.2 altair==3.2.0 pycodestyle==2.5.0 koalas==0.30.0 pyarrow==0.14.1 py4j==0.10.7 pyspark==2.4.5 && \
+    rm -rf /root/.cache && rm -rf /var/lib/apt/lists/*
 
 RUN echo "$LOG_TAG Install R related packages" && \
     echo "PATH: $PATH" && \
@@ -96,14 +96,14 @@ RUN echo "$LOG_TAG Install R related packages" && \
     apt-get -y --no-install-recommends install libcurl4-gnutls-dev libssl-dev && \
     R -e "install.packages('devtools', repos='http://cran.us.r-project.org')" && \
     R -e "install.packages('Rcpp', repos='http://cran.us.r-project.org')" && \
-    Rscript -e "library('devtools'); library('Rcpp'); install_github('ramnathv/rCharts')"
-
-# Install kubectl
-RUN apt-get install -y --no-install-recommends apt-transport-https && \
+    Rscript -e "library('devtools'); library('Rcpp'); install_github('ramnathv/rCharts')" && \
+    #Install kubectl
+    apt-get install -y --no-install-recommends apt-transport-https && \
     curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
     echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee -a /etc/apt/sources.list.d/kubernetes.list && \
     apt-get update && \
-    apt-get install --no-install-recommends -y kubectl
+    apt-get install --no-install-recommends -y kubectl && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN echo "$LOG_TAG Cleanup" && \
     apt-get autoclean && \
